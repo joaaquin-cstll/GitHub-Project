@@ -28,6 +28,6 @@ class MainController extends Controller
 
     function index()
     {
-        return view('index');
+        return view('template.base');
     }
 }

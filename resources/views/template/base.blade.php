@@ -36,9 +36,9 @@
                 </div>
             </div>
         </nav>
-        <!-- Masthead-->
-        <header class="masthead bg-primary text-white text-center">
-            @yield('content') //Directiva de blade @palabra que crea una referencia que al heredar se pueda rellenar.
+        <!-- Masthead--> //Directiva de blade @ palabra que crea una referencia que al heredar se pueda rellenar.
+        <header class="masthead bg-primary text-white text-center"> 
+            @yield('content')
         </header>
         <!-- Footer-->
         <footer class="footer text-center">

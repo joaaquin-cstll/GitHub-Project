@@ -4,12 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 
 
-Route::get('/', [MainController::class, 'index']);
-
-Route::get('about', [MainController::class, 'about']);
-
-Route::get('aboutMetodo', [MainController::class, 'aboutMetodo'])->name('aboutMetodo');
-
-Route::get('aboutNombre', [MainController::class, 'aboutNombre'])->name('aboutNombre');
-
-Route::get('aboutRuta', [MainController::class, 'aboutRuta'])->name('aboutRuta');
+Route::get('/', [MainController::class, 'index'])->name('home');
+Route::get('about', [MainController::class, 'about'])->name('about');
+Route::get('portfolio', [MainController::class, 'portfolio'])->name('portfolio');
+Route::get('array', [MainController::class, 'array'])->name('array');

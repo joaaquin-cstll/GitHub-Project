@@ -4,62 +4,58 @@ namespace App\Http\Controllers;
 
 use App\Models\Profesor;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ProfesorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    //alta del profesor
+    public function create(): View
     {
-        //
+        return view('profesor.create');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    //elimina un profesor
+    public function destroy(Profesor $profesor): RedirectResponse
     {
-        //
+        $profesor->delete();
+        return redirect()->route('profesor.index')
+            ->with('success', 'Profesor eliminado correctamente.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    //formulario de edición
+    public function edit(Profesor $profesor): View
     {
-        //
+        return view('profesor.edit', ['profesor' => $profesor]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Profesor $profesor)
+    //listado de profesores
+    public function index(): View
     {
-        //
+        $profesores = Profesor::all();
+        return view('profesor.index', ['profesores' => $profesores]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Profesor $profesor)
+    //guarda un profesor nuevo
+    public function store(Request $request): RedirectResponse
     {
-        //
+        //$fillable del modelo filtra los campos
+        $profesor = Profesor::create($request->all());
+        return redirect()->route('profesor.show', $profesor)
+            ->with('success', 'Profesor creado correctamente.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Profesor $profesor)
+    //ficha de un profesor
+    public function show(Profesor $profesor): View
     {
-        //
+        return view('profesor.show', ['profesor' => $profesor]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Profesor $profesor)
+    //guarda los cambios
+    public function update(Request $request, Profesor $profesor): RedirectResponse
     {
-        //
+        $profesor->update($request->all());
+        return redirect()->route('profesor.show', $profesor)
+            ->with('success', 'Profesor actualizado correctamente.');
     }
 }

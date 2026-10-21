@@ -53,8 +53,12 @@ class AlumnoController extends Controller
 
     public function destroy(Alumno $alumno): RedirectResponse {
         //delete from alumno where id = $alumno->id
-        $alumno->delete();
-        return redirect()->route('alumno.index');
+        try {
+            $alumno->delete();
+        } catch(Exception $e){
+            return back()->withInput()->withErrors(['error' => 'Error al borrar el alumno.']);
+        }
+        return redirect()->route('alumno.index')->with(['success' => 'Se ha borrado el alumno correctamente.']);
     }
 
     public function edit(Alumno $alumno): View {
@@ -63,6 +67,7 @@ class AlumnoController extends Controller
 
     public function index(): View {
         //select * from alumno
+        //session()->forget('success');
         $alumnos = Alumno::all();
         return view('alumno.index', ['alumnos' => $alumnos]);
     }
@@ -86,7 +91,8 @@ class AlumnoController extends Controller
                 'error' => 'Ya existe un alumno con ese nombre y apellidos.',
             ]);
         }
-        return redirect()->route('alumno.index');
+        //session(['success' => 'Se ha creado el Alumno correctamente']);
+        return redirect()->route('alumno.index')->with(['success' => 'Se ha creado el Alumno correctamente']);
     }
 
     public function update(Request $request, Alumno $alumno): RedirectResponse {
@@ -103,8 +109,7 @@ class AlumnoController extends Controller
                 'error' => 'Clave única duplicada'
             ]);
         } catch(Exception $e){
-            echo('global');
-            dd($e);
+            return back()->withInput()->withErrors(['error' => 'Al editar el Alumno']);
         }
         return redirect()->route('alumno.index');
     }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('fecalta')->nullable();
             $table->decimal('salario', 8, 2)->nullable();
             $table->timestamps();
+            $table->unique(['nombre', 'apellidos']);
         });
     }
 

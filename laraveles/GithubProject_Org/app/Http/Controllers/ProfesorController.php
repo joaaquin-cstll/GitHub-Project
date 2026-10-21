@@ -54,8 +54,12 @@ class ProfesorController extends Controller
     }
 
     public function destroy(Profesor $profesor): RedirectResponse {
-        $profesor->delete();
-        return redirect()->route('profesor.index');
+         try {
+            $profesor->delete();
+        } catch(Exception $e){
+            return back()->withInput()->withErrors(['error' => 'Error al borrar el profesor.']);
+        }
+        return redirect()->route('profesor.index')->with(['success' => 'Se ha borrado el profesor correctamente.']);
     }
 
     public function edit(Profesor $profesor): View {
@@ -87,7 +91,7 @@ class ProfesorController extends Controller
                 'error' => 'Ya existe un profesor con ese nombre y apellidos.',
             ]);
         }
-        return redirect()->route('profesor.index');
+        return redirect()->route('profesor.index')->with(['success' => 'Se ha creado el Profesor correctamente']);
     }
 
     public function update(Request $request, Profesor $profesor): RedirectResponse {
@@ -104,9 +108,8 @@ class ProfesorController extends Controller
                 'error' => 'Clave única duplicada'
             ]);
         } catch(Exception $e){
-            echo('global');
-            dd($e);
+            return back()->withInput()->withErrors(['error' => 'Al editar el Profesor']);
         }
-        return redirect()->route('alumno.index');
+        return redirect()->route('profesor.index');
     }
 }

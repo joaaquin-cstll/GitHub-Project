@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ProfesorController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,7 @@ Route::get('alumno', [AlumnoController::class, 'index'])->name('alumno.index');
 Route::put('alumno/{alumno}', [AlumnoController::class, 'update'])->name('alumno.update');
 Route::get('alumno/{alumno}', [AlumnoController::class, 'show'])->name('alumno.show');
 Route::delete('alumno/{alumno}', [AlumnoController::class, 'destroy'])->name('alumno.destroy');
+//Route::resource('alumno', 'AlumnoController::class');
 
 //LAS 7 RUTAS DE PROFESOR
 Route::get('profesor/create', [ProfesorController::class, 'create'])->name('profesor.create');
@@ -27,3 +29,13 @@ Route::get('profesor', [ProfesorController::class, 'index'])->name('profesor.ind
 Route::put('profesor/{profesor}', [ProfesorController::class, 'update'])->name('profesor.update');
 Route::get('profesor/{profesor}', [ProfesorController::class, 'show'])->name('profesor.show');
 Route::delete('profesor/{profesor}', [ProfesorController::class, 'destroy'])->name('profesor.destroy');
+
+//LAS RUTAS DE MODULO
+Route::get('modulo/create', [ModuloController::class, 'create'])->name('modulo.create');
+Route::post('modulo', [ModuloController::class, 'store'])->name('modulo.store');
+Route::get('modulo/{modulo}/edit', [ModuloController::class, 'edit'])->name('modulo.edit');
+Route::get('modulo', [ModuloController::class, 'index'])->name('modulo.index');
+Route::put('modulo/{modulo}', [ModuloController::class, 'update'])->name('modulo.update');
+Route::get('modulo/{modulo}', [ModuloController::class, 'show'])->name('modulo.show');
+Route::delete('modulo/{modulo}', [ModuloController::class, 'destroy'])->name('modulo.destroy');
+//Route::resource('modulo', 'ModuloController::class');

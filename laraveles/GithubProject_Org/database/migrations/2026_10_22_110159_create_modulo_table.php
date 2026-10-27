@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nombre', 120)->unique();
             $table->string('abreviatura', 7)->unique();
             $table->unsignedSmallInteger('horas')->nullable();
-            $table->integer('creditos')->nullable();
+            $table->decimal('creditos', 4, 2)->nullable();
             $table->timestamps();
         });
     }

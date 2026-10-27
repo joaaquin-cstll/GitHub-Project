@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\ProfesorController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ModuloController;
+use App\Http\Controllers\MatriculaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [MainController::class, 'index'])->name('index');
@@ -23,3 +25,6 @@ Route::get('alumno/{alumno}', [AlumnoController::class, 'show'])->name('alumno.s
 Route::delete('alumno/{alumno}', [AlumnoController::class, 'destroy'])->name('alumno.destroy');*/
 Route::resource('alumno', AlumnoController::class);
 Route::resource('modulo', ModuloController::class);
+Route::resource('profesor', ProfesorController::class);
+Route::resource('matricula', MatriculaController::class);
+

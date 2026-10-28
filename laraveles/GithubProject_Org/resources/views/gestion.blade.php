@@ -10,6 +10,7 @@
         <a href="{{ route('alumno.index') }}" class="btn btn-secondary mb-3">Ver Alumnos</a>
         <a href="{{ route('profesor.index') }}" class="btn btn-secondary mb-3">Ver Profesores</a>
         <a href="{{ route('modulo.index') }}" class="btn btn-secondary mb-3">Ver Módulos</a>
+        <a href="{{ route('matricula.index') }}" class="btn btn-secondary mb-3">Ver Matriculas</a>
         <hr>
     </div>
 @endsection

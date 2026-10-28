@@ -41,8 +41,15 @@ class MatriculaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+
+    public function index(): View {
+        $matriculas = Matricula::all();
+        //$matriculas = Matricula::orderBy('alfabeticamente')->get();
+        return view('matricula.index', [
+            'matriculas' => $matriculas
+        ]);
+    }
+    public function index2(){
         $lista = [
             'uno' => 121,
             121 => 'dos',

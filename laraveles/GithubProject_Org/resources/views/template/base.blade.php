@@ -78,7 +78,7 @@
                         <p class="lead mb-0">
                             2215 John Daniel Drive
                             <br />
-                            Clark, MO 65243
+                            Calle Primavera 26, Granada 18006
                         </p>
                     </div>
                     <!-- Footer Social Icons-->

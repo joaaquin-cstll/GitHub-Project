@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumno;
+use App\Models\Modulo;
 use Exception;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
@@ -70,6 +71,14 @@ class AlumnoController extends Controller
         //session()->forget('success');
         $alumnos = Alumno::all();
         return view('alumno.index', ['alumnos' => $alumnos]);
+    }
+
+    public function matricular(Alumno $alumno): View {
+        return view('alumno.matricular', [
+            'alumno' => $alumno,
+            'curso_escolar' => $this->getCursoEscolar(),
+            'modulos' => Modulo::pluck('nombre', 'id'),
+        ]);
     }
 
     public function show(Alumno $alumno): View {

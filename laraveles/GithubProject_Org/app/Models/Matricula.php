@@ -21,10 +21,10 @@ class Matricula extends Model
     }*/
 
     public function alumno(): BelongsTo {
-        return $this->belongsTo('Alumno::class');
+        return $this->belongsTo(Alumno::class, 'alumno_id');
     }
 
     public function modulo(): BelongsTo {
-        return $this->belongsTo('Modulo::class');
+        return $this->belongsTo(Modulo::class, 'modulo_id');
     }
 }

@@ -6,7 +6,6 @@ use App\Models\Matricula;
 use App\Models\Alumno;
 use App\Models\Modulo;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;  
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -26,18 +25,6 @@ class MatriculaController extends Controller
         'modulo_id.exists' => 'El módulo no existe.',
     ];
 
-    private function getCurso(): Int {
-        //si el mes es 9 o mayor año actual, sino año anterior
-        if(Carbon::now()->month >= 9) {
-            return Carbon::now()->year;
-        } else {
-            return Carbon::now()->year - 1;
-        }
-    }
-
-    private function getCursoEscolar(): String {
-        return $this->getCurso() . '/' . $this->getCurso() + 1;
-    }
     /**
      * Display a listing of the resource.
      */
@@ -89,13 +76,11 @@ class MatriculaController extends Controller
         }
         $matricula = new Matricula($request->all());
         $matricula->curso = $this->getCurso();
-        dd($matricula);
 
         try {
             $matricula->save();
-            return redirect()->route('matricula.create')->with([
-                'success' => 'Matriculado Correctamente'
-            ]);
+            //return redirect()->route('matricula.create')->with(['success' => 'Matriculado Correctamente']);
+            return back()->with(['success' => 'Matriculado Correctamente']);
         } catch(\Exception $e) {
             return back()->withInput()->withErrors([
                 'error' => 'Error al matricular'

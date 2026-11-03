@@ -11,7 +11,6 @@ Route::get('/', [MainController::class, 'index'])->name('index');
 Route::get('about', [MainController::class, 'about'])->name('about');
 Route::get('array', [MainController::class, 'array'])->name('array');
 Route::get('a/r/r/a/y', [MainController::class, 'array'])->name('array');
-//Route::get('aboutRuta', [MainController::class, 'aboutMetodo'])->name('aboutNombre');
 Route::get('portfolio', [MainController::class, 'portfolio'])->name('portfolio');
 Route::get('gestion', [MainController::class, 'gestion'])->name('gestion');
 
@@ -24,6 +23,7 @@ Route::put('alumno/{alumno}', [AlumnoController::class, 'update'])->name('alumno
 Route::get('alumno/{alumno}', [AlumnoController::class, 'show'])->name('alumno.show');
 Route::delete('alumno/{alumno}', [AlumnoController::class, 'destroy'])->name('alumno.destroy');*/
 Route::resource('alumno', AlumnoController::class);
+Route::get('alumno/{alumno}/matricular', [AlumnoController::class, 'matricular'])->name('alumno.matricular');
 Route::resource('modulo', ModuloController::class);
 Route::resource('profesor', ProfesorController::class);
 Route::resource('matricula', MatriculaController::class);

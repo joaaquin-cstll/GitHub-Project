@@ -13,6 +13,7 @@
                                 {{ $matricula->alumno->apellido }}
                             </td>
                             <td>
+                                {{-- Cambiado a $matricula->modulo --}}
                                 {{ $matricula->alumno->nombre }}
                                 {{ $matricula->alumno->abreviatura }}
 

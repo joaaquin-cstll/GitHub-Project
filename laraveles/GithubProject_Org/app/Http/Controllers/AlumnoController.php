@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumno;
+use App\Models\Matricula;
 use App\Models\Modulo;
 use Exception;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -48,54 +49,85 @@ class AlumnoController extends Controller
         'nacceso.decimal' => 'La nota de acceso debe tener como máximo 2 decimales.',
     ];
 
-    public function create(): View {
+    public function create(): View
+    {
         return view('alumno.create', []);
     }
 
-    public function destroy(Alumno $alumno): RedirectResponse {
+    public function destroy(Alumno $alumno): RedirectResponse
+    {
         //delete from alumno where id = $alumno->id
         try {
             $alumno->delete();
-        } catch(Exception $e){
+        } catch (Exception $e) {
             return back()->withInput()->withErrors(['error' => 'Error al borrar el alumno.']);
         }
         return redirect()->route('alumno.index')->with(['success' => 'Se ha borrado el alumno correctamente.']);
     }
 
-    public function edit(Alumno $alumno): View {
+    public function edit(Alumno $alumno): View
+    {
         return view('alumno.edit', ['alumno' => $alumno]);
     }
 
-    public function index(): View {
+    public function index(): View
+    {
         //select * from alumno
         //session()->forget('success');
         $alumnos = Alumno::all();
         return view('alumno.index', ['alumnos' => $alumnos]);
     }
 
-    public function matricular(Alumno $alumno): View {
+    public function matricular(Alumno $alumno): View
+    {
+        // 1. Obtenemos la colección de matrículas del alumno
+        $matriculas = Matricula::where('alumno_id', $alumno->id)
+            ->where('curso', $this->getCurso())
+            ->get();
+
+        $matriculasSimplificadas = [];
+
+        // 2. Recorremos la colección usando la variable en singular $mat
+        foreach ($matriculas as $mat) {
+            $matriculasSimplificadas[$mat->modulo_id] = $mat->modulo_id;
+
+            // Si quieres comprobar/imprimir cada módulo correspondiente a la matrícula:
+            $modulo = Modulo::find($mat->modulo_id);
+            if ($modulo) {
+                // echo 'Módulo: ' . $modulo->nombre . '<br>';
+            } else {
+                // echo 'Módulo no encontrado para la matrícula con ID: ' . $mat->id . '<br>';
+            }
+        }
+
+        // Nota: Es mejor usar plural 'matriculas' en la vista si envías un array/colección,
+        // o mantener 'matricula' si en tu Blade usas $matricula
         return view('alumno.matricular', [
             'alumno' => $alumno,
             'curso_escolar' => $this->getCursoEscolar(),
+            'matricula' => $matriculasSimplificadas, // Array de IDs matriculados [id_modulo => id_modulo]
             'modulos' => Modulo::pluck('nombre', 'id'),
+            'modulosCompletos' => Modulo::orderBy('nombre', 'asc')->get(),
         ]);
     }
 
-    public function show(Alumno $alumno): View {
+    public function show(Alumno $alumno): View
+    {
         return view('alumno.show', ['alumno' => $alumno]);
     }
 
-    public function store(Request $request): RedirectResponse {
+    public function store(Request $request): RedirectResponse
+    {
         //1º validar
         $validator = Validator::make($request->all(), self::RULES, self::MESSAGES);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return back()->withInput()->withErrors($validator);
         }
         //2º guardar
         $alumno = new Alumno($validator->validated());
         try {
             $alumno->save();
-        } catch(UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException $e) {
             return back()->withInput()->withErrors([
                 'error' => 'Ya existe un alumno con ese nombre y apellidos.',
             ]);
@@ -104,20 +136,21 @@ class AlumnoController extends Controller
         return redirect()->route('alumno.index')->with(['success' => 'Se ha creado el Alumno correctamente']);
     }
 
-    public function update(Request $request, Alumno $alumno): RedirectResponse {
+    public function update(Request $request, Alumno $alumno): RedirectResponse
+    {
         //1º validar
         $validator = Validator::make($request->all(), self::RULES, self::MESSAGES);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return back()->withInput()->withErrors($validator);
         }
         //2º actualizar y redirigir
         try {
             $alumno->update($validator->validated());
-        } catch(UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException $e) {
             return back()->withInput()->withErrors([
                 'error' => 'Clave única duplicada'
             ]);
-        } catch(Exception $e){
+        } catch (Exception $e) {
             return back()->withInput()->withErrors(['error' => 'Al editar el Alumno']);
         }
         return redirect()->route('alumno.index');

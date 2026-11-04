@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Matricula;
 use App\Models\Alumno;
 use App\Models\Modulo;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -32,9 +33,7 @@ class MatriculaController extends Controller
     public function index(): View {
         $matriculas = Matricula::all();
         //$matriculas = Matricula::orderBy('alfabeticamente')->get();
-        return view('matricula.index', [
-            'matriculas' => $matriculas
-        ]);
+        return view('matricula.index', ['matriculas' => $matriculas]);
     }
     public function index2(){
         $lista = [
@@ -118,5 +117,44 @@ class MatriculaController extends Controller
     public function destroy(Matricula $matricula)
     {
         //
+    }
+
+    public function make(Request $request, Alumno $alumno): RedirectResponse {
+        //validardor
+        /*$validator = Validator::make($request->all(), self::RULES, self::MESSAGES);
+        if($validator->fails()) {
+            return back()->withInput()->withErrors($validator);
+        }*/
+        $matricula = new Matricula($request->all());
+        $matricula->curso = $this->getCurso();
+        $matricula->alumno_id = $alumno->id;
+        try {
+            $matricula->save();
+            return back()->with(['success' => 'Matriculado Correctamente']);
+        } catch(\Exception $e) {
+            return back()->withInput()->withErrors(['error' => 'Error al matricular']);
+        }
+    }
+
+    public function storeModules(Request $request): RedirectResponse {
+        $curso = $this->getCurso();
+        $alumno_id = $request->alumno_id;
+        $modulos_id = $request->modulo_id;
+        if($modulos_id === null) {
+            $modulos = [];
+        }
+        //borrar matriculas de los módulos no marcados
+        $registrosBorrados = Matricula::where('alumno_id', $alumno_id)->whereNotIn('modulo_id', $modulos_id)->delete();
+        //matricular los módulos marcados
+        $contador = 0;
+        foreach($modulos_id as $modulo_id) {
+            //se va a ejecutar un insert ignore
+            $contador += Matricula::insertOrIgnore([
+                'alumno_id' => $alumno_id,
+                'modulo_id' => $modulo_id,
+                'curso' => $curso,
+            ]);
+        }
+        return back()->with(['success' => 'Se ha matriculado correctamente, Se han insertado ' . $contador . ' y se han borrado ' . $registrosBorrados . ' registros.']);
     }
 }

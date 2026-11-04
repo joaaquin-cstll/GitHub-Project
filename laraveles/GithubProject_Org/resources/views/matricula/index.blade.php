@@ -14,8 +14,8 @@
                             </td>
                             <td>
                                 {{-- Cambiado a $matricula->modulo --}}
-                                {{ $matricula->alumno->nombre }}
-                                {{ $matricula->alumno->abreviatura }}
+                                {{ $matricula->modulo->nombre }}
+                                {{ $matricula->modulo->abreviatura }}
 
                             </td>
                         </tr>

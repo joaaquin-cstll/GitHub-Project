@@ -23,6 +23,7 @@
                     <h6 class="card-title">{{ $alumno->genero }}</h6>
                     <h6 class="card-title">{{ $alumno->nacceso }}</h6>
                     <a href="{{ route('alumno.index') }}" class="btn btn-secondary">Back</a>
+                    <a href="{{ route('alumno.matricular', $alumno) }}" class="btn btn-secondary">Matricular</a>
                 </div>
             </div>
         </div>

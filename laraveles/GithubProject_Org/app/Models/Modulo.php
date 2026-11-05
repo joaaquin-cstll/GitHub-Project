@@ -17,6 +17,6 @@ class Modulo extends Model
     ];
 
     public function matriculas(): HasMany {
-        return $this->hasMany('Matricula::class');
+        return $this->hasMany(Matricula::class);
     }
 }

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumno;
-use App\Models\Matricula;
 use App\Models\Modulo;
-use Exception;
+use App\Models\Matricula;
+use \Exception;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,145 +14,127 @@ use Illuminate\View\View;
 
 class AlumnoController extends Controller
 {
-    private const RULES = [
-        'nombre'    => 'required|string|max:100|min:2',
-        'apellidos' => 'required|string|max:130|min:3',
-        'fnac'      => 'nullable|date|before_or_equal:today',
-        'nacceso'   => 'nullable|numeric|gte:0|lte:10|decimal:0,2',
-        'genero'    => 'nullable|in:masculino,femenino,otro',
-    ];
 
     private const MESSAGES = [
-        // Nombre
-        'nombre.required' => 'El nombre es obligatorio.',
-        'nombre.string'   => 'El nombre debe ser una cadena de texto.',
-        'nombre.max'      => 'El nombre no puede superar los 100 caracteres.',
-        'nombre.min'      => 'El nombre debe tener al menos 2 caracteres.',
-
-        // Apellidos
-        'apellidos.required' => 'Los apellidos son obligatorios.',
-        'apellidos.string'   => 'Los apellidos deben ser una cadena de texto.',
-        'apellidos.max'      => 'Los apellidos no pueden superar los 130 caracteres.',
-        'apellidos.min'      => 'Los apellidos deben tener al menos 3 caracteres.',
-
-        // Fecha de nacimiento
-        'fnac.date'            => 'La fecha de nacimiento no es válida.',
-        'fnac.before_or_equal' => 'La fecha de nacimiento no puede ser posterior a hoy.',
-
-        // Género
-        'genero.in' => 'El género debe ser masculino, femenino u otro.',
-
-        // Nota de acceso
-        'nacceso.numeric' => 'La nota de acceso debe ser un número.',
-        'nacceso.gte'     => 'La nota de acceso no puede ser inferior a 0.',
-        'nacceso.lte'     => 'La nota de acceso no puede ser superior a 10.',
-        'nacceso.decimal' => 'La nota de acceso debe tener como máximo 2 decimales.',
+            'apellidos.required'                => 'Los apellidos son obligatorios',
+            'apellidos.string'                  => 'Los apellidos deben ser una cadena de texto',
+            'apellidos.max'                     => 'Los apellidos no pueden superar los 130 caracteres',
+            'apellidos.min'                     => 'Los apellidos deben tener al menos 3 caracteres',
+            'fnac.date'                         => 'La fecha de nacimiento debe ser una fecha valida',
+            'fnac.before_or_equal'              => 'La fecha de nacimiento no puede ser posterior a hoy',
+            'genero.in'                         => 'El género debe ser masculino, femenino u otro',
+            'nacceso.numeric'                   => 'La nota de acceso debe ser un número',
+            'nacceso.gte'                       => 'La nota de acceso no puede ser inferior a 0',
+            'nacceso.lte'                       => 'La nota de acceso no puede ser superior a 10',
+            'nacceso.decimal'                   => 'La nora de acceso debe tener como minimo 2 caracteres',
+            'nombre.required'                   => 'El nombre es obligatorio',
+            'nombre.string'                     => 'El nombre debe ser una cadena de texto',
+            'nombre.max'                        => 'El nombre no puede superar los 100 caracteres',
+            'nombre.min'                        => 'El nombre debe tener al menos 2 caracteres',
+    ];
+           
+    private const RULES = [
+            'nombre'    => 'required|string|max:100|min:2',
+            'apellidos' => 'required|string|max:130|min:3',
+            'fnac'      => 'nullable|date|before_or_equal:today',
+            'nacceso'   => 'nullable|numeric|gte:0|lte:10|decimal:2',
+            'genero'    => 'nullable|in:masculino,femenino,otro',
     ];
 
-    public function create(): View
-    {
+    public function create(): View {
+        //
         return view('alumno.create', []);
     }
-
-    public function destroy(Alumno $alumno): RedirectResponse
-    {
+    
+    public function destroy(Alumno $alumno): RedirectResponse {
         //delete from alumno where id = $alumno->id
         try {
-            $alumno->delete();
-        } catch (Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Error al borrar el alumno.']);
+             $alumno->delete();
+        } catch(Exception $e) {
+            return back()->withErrors(['error' => 'Error al borrar el alumno']);
         }
-        return redirect()->route('alumno.index')->with(['success' => 'Se ha borrado el alumno correctamente.']);
+       
+        return redirect()->route('alumno.index')->with(['success' => 'Se ha borrado el alumno.']);
     }
 
-    public function edit(Alumno $alumno): View
-    {
+    public function edit(Alumno $alumno): View{
+        //
         return view('alumno.edit', ['alumno' => $alumno]);
     }
 
-    public function index(): View
-    {
-        //select * from alumno
-        //session()->forget('success');
+    public function index(): View {
+        //
+        // $alumnos = 'select * from alumno';
+        // session()->forget('success');
         $alumnos = Alumno::all();
+        // dd($alumnos);
         return view('alumno.index', ['alumnos' => $alumnos]);
     }
 
-    public function matricular(Alumno $alumno): View
-    {
-        // 1. Obtenemos la colección de matrículas del alumno
-        $matriculas = Matricula::where('alumno_id', $alumno->id)
-            ->where('curso', $this->getCurso())
-            ->get();
-
-        $matriculasSimplificadas = [];
-
-        // 2. Recorremos la colección usando la variable en singular $mat
-        foreach ($matriculas as $mat) {
-            $matriculasSimplificadas[$mat->modulo_id] = $mat->modulo_id;
-
-            // Si quieres comprobar/imprimir cada módulo correspondiente a la matrícula:
-            $modulo = Modulo::find($mat->modulo_id);
-            if ($modulo) {
-                // echo 'Módulo: ' . $modulo->nombre . '<br>';
-            } else {
-                // echo 'Módulo no encontrado para la matrícula con ID: ' . $mat->id . '<br>';
-            }
+    public function matricular(Alumno $alumno): View{
+        $matriculas = Matricula::where('alumno_id', '=', $alumno->id)->where('curso', '=', $this->getCurso())->get();
+        // $matriculas = Matricula::where('alumno_id',$alumno->id)->where('curso', $this->getCurso())->get();
+        $matriculasSimplificadas = [];    
+        foreach($matriculas as $matricula){
+            $matriculasSimplificadas[$matricula->modulo_id] = $matricula->modulo_id;
         }
 
-        // Nota: Es mejor usar plural 'matriculas' en la vista si envías un array/colección,
-        // o mantener 'matricula' si en tu Blade usas $matricula
+    //    $matriculas = Matricula::where('alumno_id', '=', $alumno->id)->where('curso', '=', $this->getCurso())->pluck('modulo_id');
+    //    $matriculasSimplificadas = $matriculas->toArray();
+
         return view('alumno.matricular', [
-            'alumno' => $alumno,
-            'curso_escolar' => $this->getCursoEscolar(),
-            'matricula' => $matriculasSimplificadas, // Array de IDs matriculados [id_modulo => id_modulo]
-            'modulos' => Modulo::pluck('nombre', 'id'),
-            'modulosCompletos' => Modulo::orderBy('nombre', 'asc')->get(),
+            'alumno'                  => $alumno,
+            'curso_escolar'           => $this->getCursoEscolar(),
+            'matriculas'              => $matriculasSimplificadas,
+            'modulos'                 => Modulo::pluck('nombre', 'id'),
+            'modulos_completos'       => Modulo::orderBy('nombre', 'asc')->get(),
         ]);
     }
 
-    public function show(Alumno $alumno): View
-    {
+    public function show(Alumno $alumno): View {
+        //
+        // dd($alumno);
         return view('alumno.show', ['alumno' => $alumno]);
     }
 
-    public function store(Request $request): RedirectResponse
-    {
+    public function store(Request $request): RedirectResponse {
         //1º validar
         $validator = Validator::make($request->all(), self::RULES, self::MESSAGES);
-        if ($validator->fails()) {
+        if($validator->fails()){
             return back()->withInput()->withErrors($validator);
         }
-        //2º guardar
-        $alumno = new Alumno($validator->validated());
+
+        $alumno = new Alumno($request ->all());
         try {
             $alumno->save();
-        } catch (UniqueConstraintViolationException $e) {
+        } catch(UniqueConstraintViolationException $e) {
             return back()->withInput()->withErrors([
-                'error' => 'Ya existe un alumno con ese nombre y apellidos.',
+                'error' => 'Clave única duplicada.',
+                //'nombre'     => 'Este campo forma parte de la clave única',
+                //'apellidos'  => 'Este campo también forma parte de la clave única',
             ]);
+        } catch(Exception $e) {
+            return back()->withInput()->withErrors(['error' => 'Error al crear el alumno']);
         }
-        //session(['success' => 'Se ha creado el Alumno correctamente']);
-        return redirect()->route('alumno.index')->with(['success' => 'Se ha creado el Alumno correctamente']);
+        // session(['success' => 'Se ha creado el alumno correctamente. V2']);
+        return redirect() -> route('alumno.index')->with(['success' => 'Se ha creado el alumno correctamente']);
     }
 
-    public function update(Request $request, Alumno $alumno): RedirectResponse
-    {
-        //1º validar
+    public function update(Request $request, Alumno $alumno): RedirectResponse {
+        // dd(['update', $alumno]);
         $validator = Validator::make($request->all(), self::RULES, self::MESSAGES);
-        if ($validator->fails()) {
+        if($validator->fails()){
             return back()->withInput()->withErrors($validator);
         }
-        //2º actualizar y redirigir
         try {
-            $alumno->update($validator->validated());
-        } catch (UniqueConstraintViolationException $e) {
-            return back()->withInput()->withErrors([
-                'error' => 'Clave única duplicada'
-            ]);
+            $alumno->update($request->all());
+        } catch(UniqueConstraintViolationException $e) {
+            return back()->withInput()->withErrors(['error' => 'Clave única duplicada.']);
         } catch (Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Al editar el Alumno']);
+            return back()->withInput()->withErrors(['error' => 'Error al editar el alumno']);
         }
+        
         return redirect()->route('alumno.index');
     }
+
 }

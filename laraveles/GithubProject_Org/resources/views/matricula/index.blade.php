@@ -10,7 +10,7 @@
                             <td>{{ $matricula->id }}</td>
                             <td>
                                 {{ $matricula->alumno->nombre }}
-                                {{ $matricula->alumno->apellido }}
+                                {{ $matricula->alumno->apellidos }}
                             </td>
                             <td>
                                 {{-- Cambiado a $matricula->modulo --}}

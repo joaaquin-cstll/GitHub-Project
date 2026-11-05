@@ -2,159 +2,160 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Matricula;
 use App\Models\Alumno;
+use App\Models\Matricula;
 use App\Models\Modulo;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 class MatriculaController extends Controller
 {
-    private const RULES = [
-        'alumno_id' => 'required|numeric|exists:alumno,id',
-        'modulo_id' => 'required|numeric|exists:modulo,id',
-    ];
-
     private const MESSAGES = [
-        'alumno_id.required' => 'El alumno es obligatorio.',
-        'alumno_id.numeric' => 'El alumno no se ha seleccionado correctamente.',
-        'alumno_id.exists' => 'El alumno no existe.',
-        'modulo_id.required' => 'El módulo es obligatorio.',
-        'modulo_id.numeric' => 'El módulo no se ha seleccionado correctamente.',
-        'modulo_id.exists' => 'El módulo no existe.',
+            'alumno_id.required' => 'El alumno es obligatorio.',
+            'alumno_id.numeric'  => 'El alumno no se ha seleccionado bien.',
+            'alumno_id.exists'   => 'El alumno no existe',
+            'modulo_id.required' => 'El módulo es obligatorio.',
+            'modulo_id.numeric'  => 'El módulo no se ha seleccionado bien.',
+            'modulo_id.exists'   => 'El módulo no exite',
     ];
 
-    /**
-     * Display a listing of the resource.
-     */
+    private const RULES = [
+            'alumno_id' => 'required|numeric|exists:alumno,id',
+            'modulo_id' => 'required|numeric|exists:modulo,id',
+            
+    ];
 
     public function index(): View {
         $matriculas = Matricula::all();
-        //$matriculas = Matricula::orderBy('alfabeticamente')->get();
-        return view('matricula.index', ['matriculas' => $matriculas]);
+        //$matriculas = Matriculas::orderBy('alfabeticamente')->get();
+        return view('matricula.index', [
+            'matriculas' => $matriculas
+        ]);
     }
-    public function index2(){
+
+    public function index2()
+    {
         $lista = [
-            'uno' => 121,
-            121 => 'dos',
+            'uno'  => 121,
+            121    => 'dos',
             'tres' => 'cuatro',
         ];
+
         var_dump($lista);
+        echo '<prev>' . var_export($lista, true) . '</pre>';
         foreach($lista as $elemento) {
-            echo $elemento .'<br>';
+            echo $elemento . '<br>';
         }
-
         foreach($lista as $indice => $elemento) {
-            echo $elemento . ' está en la posición '. $indice .'<br>';
+            echo $elemento . ' está en la posición ' . $indice . '<br>';
         }
+        dd($lista);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create() : View
     {
-        return view('matricula.create', [
-            'alumnos' => Alumno::orderBy('apellidos')->orderBy('nombre')->get(),
+        return view('matricula.create' , [
+            'alumnos'        => Alumno::orderBy('apellidos')->orderBy('nombre')->get(),
             'curso_escolar' => $this->getCursoEscolar(),
-            'modulos' => Modulo::pluck('nombre','id'),
-        ]); 
+            'modulos'       => Modulo::pluck('nombre', 'id'),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //validardor
         $validator = Validator::make($request->all(), self::RULES, self::MESSAGES);
-        if($validator->fails()) {
+        if($validator->fails()){
             return back()->withInput()->withErrors($validator);
         }
         $matricula = new Matricula($request->all());
         $matricula->curso = $this->getCurso();
-
         try {
             $matricula->save();
-            //return redirect()->route('matricula.create')->with(['success' => 'Matriculado Correctamente']);
-            return back()->with(['success' => 'Matriculado Correctamente']);
+            return back() ->with(['success' => 'Se ha matriculado correctamente']);
         } catch(\Exception $e) {
             return back()->withInput()->withErrors([
-                'error' => 'Error al matricular'
+                'error' => 'Error al matricular.',
             ]);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Matricula $matricula)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Matricula $matricula)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Matricula $matricula)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Matricula $matricula)
     {
         //
     }
 
-    public function make(Request $request, Alumno $alumno): RedirectResponse {
-        //validardor
-        /*$validator = Validator::make($request->all(), self::RULES, self::MESSAGES);
-        if($validator->fails()) {
+    public function make(Request $request, Alumno $alumno): RedirectResponse{
+        $validator = Validator::make($request->all(), ['modulo_id' => self::RULES['modulo_id']], self::MESSAGES);
+        if($validator->fails()){
             return back()->withInput()->withErrors($validator);
-        }*/
-        $matricula = new Matricula($request->all());
+        }
+        $matricula = new Matricula($request->only('modulo_id'));
         $matricula->curso = $this->getCurso();
         $matricula->alumno_id = $alumno->id;
         try {
             $matricula->save();
-            return back()->with(['success' => 'Matriculado Correctamente']);
+            return back() ->with(['success' => 'Se ha matriculado correctamente']);
+        } catch(UniqueConstraintViolationException $e) {
+            return back()->withInput()->withErrors([
+                'error' => 'El alumno ya está matriculado en ese módulo este curso.',
+            ]);
         } catch(\Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Error al matricular']);
+            return back()->withInput()->withErrors([
+                'error' => 'Error al matricular.',
+            ]);
         }
     }
 
     public function storeModules(Request $request): RedirectResponse {
+        $validator = Validator::make($request->all(), [
+            'alumno_id'   => self::RULES['alumno_id'],
+            'modulo_id'   => 'nullable|array',
+            'modulo_id.*' => 'numeric|exists:modulo,id',
+        ], self::MESSAGES);
+        if($validator->fails()){
+            return back()->withInput()->withErrors($validator);
+        }
+
         $curso = $this->getCurso();
         $alumno_id = $request->alumno_id;
-        $modulos_id = $request->modulo_id;
-        if($modulos_id === null) {
-            $modulos = [];
-        }
-        //borrar matriculas de los módulos no marcados
-        $registrosBorrados = Matricula::where('alumno_id', $alumno_id)->whereNotIn('modulo_id', $modulos_id)->delete();
-        //matricular los módulos marcados
+        $modulos_id = $request->input('modulo_id', []);
+
+        //borrar matriculas del curso actual de los módulos no marcados (los cursos anteriores no se tocan)
+        $registrosBorrados = Matricula::where('alumno_id', $alumno_id)
+            ->where('curso', $curso)
+            ->whereNotIn('modulo_id', $modulos_id)
+            ->delete();
+
+        //matricular en módulos marcados si no lo está ya (insert ignore)
         $contador = 0;
+        $now = now();
         foreach($modulos_id as $modulo_id) {
-            //se va a ejecutar un insert ignore
             $contador += Matricula::insertOrIgnore([
-                'alumno_id' => $alumno_id,
-                'modulo_id' => $modulo_id,
-                'curso' => $curso,
+                'alumno_id'  => $alumno_id,
+                'modulo_id'  => $modulo_id,
+                'curso'      => $curso,
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
         }
-        return back()->with(['success' => 'Se ha matriculado correctamente, Se han insertado ' . $contador . ' y se han borrado ' . $registrosBorrados . ' registros.']);
+        return back()->with(['success' => "Se ha matriculado correctamente. Se han insertado $contador matriculas y se han borrado $registrosBorrados matriculas."]);
     }
 }

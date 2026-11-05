@@ -25,8 +25,13 @@ class NoticiaController extends Controller
             'texto'  => 'required|string',
         ]);
 
-        Noticia::create($validated);
-        return redirect()->route('noticias.index')->with('success', 'Noticia creada con éxito.');
+        try {
+            Noticia::create($validated);
+            return redirect()->route('noticias.index')->with('success', 'Noticia creada con éxito.');
+        } catch (\Exception $e) {
+            return redirect()->route('noticias.index')
+            ->with('error', 'Ocurrió un error en la base de datos al guardar la noticia.');
+        }
     }
 
     public function show(Noticia $noticia)
@@ -57,8 +62,13 @@ class NoticiaController extends Controller
             'texto'  => 'required|string',
         ]);
 
-        $noticia->update($validated);
-        return redirect()->route('noticias.index')->with('success', 'Noticia actualizada correctamente.');
+        try {
+            $noticia->update($validated);
+            return redirect()->route('noticias.index')->with('success', 'Noticia actualizada correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('noticias.index')
+            ->with('error', 'Ocurrió un error en la base de datos al actualizar la noticia.');
+        }
     }
 
     public function destroy(Noticia $noticia)
@@ -66,14 +76,13 @@ class NoticiaController extends Controller
         if (!$noticia->esEliminable()) {
         return redirect()->route('noticias.index')
             ->with('error', 'No se puede borrar una noticia que contiene comentarios.');
-    }
-
-    try {
-        $noticia->delete();
-        return redirect()->route('noticias.index')->with('success', 'Noticia eliminada correctamente.');
-    } catch (\Exception $e) {
-        return redirect()->route('noticias.index')
+        }
+        try {
+            $noticia->delete();
+            return redirect()->route('noticias.index')->with('success', 'Noticia eliminada correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('noticias.index')
             ->with('error', 'Ocurrió un error en la base de datos al intentar eliminar la noticia.');
-    }
+        }
     }
 }

@@ -64,11 +64,16 @@ class NoticiaController extends Controller
     public function destroy(Noticia $noticia)
     {
         if (!$noticia->esEliminable()) {
-            return redirect()->route('noticias.index')
-                ->with('error', 'No se puede borrar una noticia que contiene comentarios.');
-        }
+        return redirect()->route('noticias.index')
+            ->with('error', 'No se puede borrar una noticia que contiene comentarios.');
+    }
 
+    try {
         $noticia->delete();
         return redirect()->route('noticias.index')->with('success', 'Noticia eliminada correctamente.');
+    } catch (\Exception $e) {
+        return redirect()->route('noticias.index')
+            ->with('error', 'Ocurrió un error en la base de datos al intentar eliminar la noticia.');
+    }
     }
 }

@@ -80,10 +80,10 @@
 
                         <!-- Botones de Acción para Comentarios -->
                         <div class="d-flex gap-2 justify-content-end align-items-center">
-                            {{-- Botón y Modal de Edición (< 5 min) --}}
+                            {{-- Botón y Modal de Edición (- 5 min) --}}
                             @if($comentario->esEditable())
                                 <button type="button" class="btn btn-outline-warning btn-sm py-0" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#editModal{{ $comentario->id }}">
-                                    Editar (< 5 min)
+                                    Editar (- 5 min)
                                 </button>
 
                                 <div class="modal fade" id="editModal{{ $comentario->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $comentario->id }}" aria-hidden="true">
@@ -119,13 +119,13 @@
                                 </div>
                             @endif
 
-                            {{-- Botón de Eliminación (< 3 min) --}}
+                            {{-- Botón de Eliminación (- 3 min) --}}
                             @if($comentario->esEliminable())
                                 <form action="{{ route('comentarios.destroy', $comentario) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-outline-danger btn-sm py-0" style="font-size: 0.75rem;" onclick="return confirm('¿Deseas borrar este comentario?')">
-                                        Borrar (< 3 min)
+                                        Borrar (- 3 min)
                                     </button>
                                 </form>
                             @endif

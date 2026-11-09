@@ -158,4 +158,39 @@ class MatriculaController extends Controller
         }
         return back()->with(['success' => "Se ha matriculado correctamente. Se han insertado $contador matriculas y se han borrado $registrosBorrados matriculas."]);
     }
+
+    public function storeAlumnos(Request $request): RedirectResponse {
+        $validator = Validator::make($request->all(), [
+            'modulo_id'    => self::RULES['modulo_id'],
+            'alumno_id'    => 'nullable|array',
+            'alumno_id.*'  => 'numeric|exists:alumno,id',
+        ], self::MESSAGES);
+        if($validator->fails()){
+            return back()->withInput()->withErrors($validator);
+        }
+
+        $curso = $this->getCurso();
+        $modulo_id = $request->modulo_id;
+        $alumnos_id = $request->input('alumno_id', []);
+
+        //borrar matriculas del curso actual de los alumnos no marcados (los cursos anteriores no se tocan)
+        $registrosBorrados = Matricula::where('modulo_id', $modulo_id)
+            ->where('curso', $curso)
+            ->whereNotIn('alumno_id', $alumnos_id)
+            ->delete();
+
+        //matricular a los alumnos marcados si no lo están ya (insert ignore)
+        $contador = 0;
+        $now = now();
+        foreach($alumnos_id as $alumno_id) {
+            $contador += Matricula::insertOrIgnore([
+                'alumno_id'  => $alumno_id,
+                'modulo_id'  => $modulo_id,
+                'curso'      => $curso,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+        return back()->with(['success' => "Se ha matriculado correctamente. Se han insertado $contador matriculas y se han borrado $registrosBorrados matriculas."]);
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumno;
+use App\Models\Matricula;
 use App\Models\Modulo;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -90,6 +92,24 @@ class ModuloController extends Controller
                     ->withInput()
                     ->withErrors(['error' =>'Se produjo un error al actualizar el módulo.']);
         }
+    }
+
+    public function matricular(Modulo $modulo): View {
+        //ids de los alumnos ya matriculados en este módulo en el curso actual
+        $matriculas = Matricula::where('modulo_id', $modulo->id)
+                        ->where('curso', $this->getCurso())
+                        ->pluck('alumno_id');
+        $matriculasSimplificadas = [];
+        foreach($matriculas as $alumno_id) {
+            $matriculasSimplificadas[$alumno_id] = $alumno_id;
+        }
+
+        return view('modulo.matricular', [
+            'modulo'          => $modulo,
+            'curso_escolar'   => $this->getCursoEscolar(),
+            'matriculas'      => $matriculasSimplificadas,
+            'alumnos'         => Alumno::orderBy('apellidos')->orderBy('nombre')->get(),
+        ]);
     }
 
     public function destroy(Modulo $modulo): RedirectResponse {

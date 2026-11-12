@@ -13,8 +13,13 @@
                             {{ session('status') }}
                         </div>
                     @endif
-
-                    {{ __('You are logged in!') }}
+                    
+                    {{ __('You are logged in!') }}<br>
+                    Id: {{ auth()->user()->id }}<br>
+                    User: {{ auth()->user()->name }}<br>
+                    Email: {{ auth()->user()->email }}<br>
+                    Rol: {{ auth()->user()->rol }}<br>
+                    <a href="{{ route('home.edit') }}">Editar</a>
                 </div>
             </div>
         </div>
